@@ -3,6 +3,7 @@ import axios from 'axios';
 import Item from './item';
 import Input from './input';
 import './list.css';
+import { formatPostData } from '../../helpers'
 
 class ToDoList extends Component {
     constructor(props) {
@@ -24,13 +25,37 @@ class ToDoList extends Component {
         this.deleteItem = this.deleteItem.bind(this);
     }
 
-    componentWillMount() {
+    async componentWillMount() {
         this.getListData();
+
+        // const dataToSend = formatPostData({
+        //     message: 'heeeeey',
+        //     favColor: 'pink',
+        //     birthday: '5-12'
+        // });
+
+        // const params = new URLSearchParams();
+        // params.append('message', 'heeeeey');
+        // params.append('favColor', 'pink');
+        // params.append('birthday', '5-12');
+
+        //const resp = await axios.get('/api/todos.php?action=get_all_todos');
+        // const resp = await axios.get('/api/todos.php', {
+        //     params: {
+        //         action: 'get_all_todos'
+        //     }
+        // });
+
+        //console.log('response from server: ', resp);
     }
 
     async getListData() {
         // Use get request to get list data
-        const response = { data: {}}; // Remove
+        const response = await axios.get('/api/todos.php', {
+            params: {
+                action: 'get_all_todos'
+            }
+        });
 
         const { message, listItems } = response.data;
 
@@ -39,9 +64,9 @@ class ToDoList extends Component {
             message: ''
         };
 
-        if(listItems){
+        if (listItems) {
             newState.list = listItems;
-        } else if (message){
+        } else if (message) {
             newState.message = message;
         } else {
             newState.message = 'Error with server'
@@ -60,11 +85,11 @@ class ToDoList extends Component {
         e.preventDefault();
         // Item @ this.state.newItem
         // Use post method to send new item to DB
-        const response = {data: {success: true}}; // Remove
+        const response = { data: { success: true } }; // Remove
 
         const { errors, success } = response.data;
 
-        if(!success){
+        if (!success) {
             return this.setState({ errors });
         }
 
@@ -90,7 +115,7 @@ class ToDoList extends Component {
         });
     }
 
-    async handleToggleComplete(id, complete){
+    async handleToggleComplete(id, complete) {
         const dataToSend = {
             id: id,
             complete: !complete
@@ -107,14 +132,14 @@ class ToDoList extends Component {
         let listDisplay = <li className="list-error center grey-text text-lighten-1">{message}</li>;
         let errorsDisplay = [];
 
-        if(list.length){
+        if (list.length) {
             listDisplay = list.map(item => {
                 return <Item key={item.id} toggleComplete={this.handleToggleComplete.bind(this, item.id, item.complete)} deleteItem={this.deleteItem.bind(this, item.id)} {...item} />
             });
         }
 
-        if(errors){
-            errorsDisplay = errors.map( err => <p key={err} className="red-text">{err}</p>);
+        if (errors) {
+            errorsDisplay = errors.map(err => <p key={err} className="red-text">{err}</p>);
         }
 
         return (
