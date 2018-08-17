@@ -15,7 +15,7 @@ switch($method) {
     break;
 
     case 'POST':
-    $output['message'] = 'POST request made';
+    require_once('post/'.$action.'.php');
     break;
 
     case 'PUT':
